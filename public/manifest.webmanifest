@@ -1,0 +1,17 @@
+{
+  "name": "Rootline Domain Inventory",
+  "short_name": "Rootline",
+  "description": "Public subdomain, DNS and HTTPS inventory.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f6f7f4",
+  "theme_color": "#101210",
+  "icons": [
+    {
+      "src": "/assets/app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

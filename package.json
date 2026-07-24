@@ -1,0 +1,16 @@
+{
+  "name": "rootline",
+  "version": "4.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node dev-server.mjs",
+    "start": "node dev-server.mjs",
+    "check": "node --check public/app.js && node --check dev-server.mjs && node --check api/scan.mjs && node --check api/health.mjs && node --check lib/scan-service.mjs",
+    "test": "node --test",
+    "verify": "npm run check && npm test"
+  },
+  "engines": {
+    "node": "22.x"
+  }
+}
