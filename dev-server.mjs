@@ -56,7 +56,7 @@ const server = http.createServer(async (request, response) => {
       }
 
       const body = parseJson(await readRequestBody(request));
-      const result = await scanDomain(body?.domain);
+      const result = await scanDomain(body?.domain, { knownAssets: body?.knownAssets });
       return sendJson(response, 200, result);
     }
 

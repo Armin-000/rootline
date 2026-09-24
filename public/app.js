@@ -242,6 +242,7 @@ function normalizeScanPayload(payload, fallbackDomain) {
         ipv4: toStringArray(host.ipv4),
         ipv6: toStringArray(host.ipv6),
         cname: toStringArray(host.cname),
+        sources: toStringArray(host.sources),
         dnsResolved: Boolean(host.dnsResolved || toStringArray(host.ipv4).length || toStringArray(host.ipv6).length || toStringArray(host.cname).length),
         https: {
           ok: Boolean(host.https?.ok),
@@ -318,6 +319,7 @@ function renderTableRow(host) {
           </span>
         </div>
       </td>
+      <td>${renderSourcePills(host.sources)}</td>
       <td>${host.dnsResolved ? `${host.ipv4.length + host.ipv6.length + host.cname.length} record${host.ipv4.length + host.ipv6.length + host.cname.length === 1 ? "" : "s"}` : "—"}</td>
       <td><span class="status-pill status-pill--${classification}">${escapeHtml(statusText)}</span></td>
       <td>${escapeHtml(responseText)}</td>
@@ -353,6 +355,7 @@ function renderMobileCard(host) {
       </div>
       <div class="host-card__stats">
         <div class="host-card__stat"><span>IPv4</span><strong>${host.ipv4.length || "—"}</strong></div>
+        <div class="host-card__stat"><span>Source</span><strong>${escapeHtml(formatHostSources(host.sources))}</strong></div>
         <div class="host-card__stat"><span>DNS records</span><strong>${host.ipv4.length + host.ipv6.length + host.cname.length || "—"}</strong></div>
         <div class="host-card__stat"><span>Response</span><strong>${escapeHtml(responseText)}</strong></div>
       </div>
@@ -394,6 +397,7 @@ function openDetails(host) {
   dom.drawerBody.innerHTML = `
     <section class="detail-section">
       <div class="detail-grid">
+        <div class="detail-item"><span>Discovery source</span><strong>${escapeHtml(formatHostSources(host.sources))}</strong></div>
         <div class="detail-item"><span>DNS status</span><strong>${host.dnsResolved ? "Resolved" : "Unresolved"}</strong></div>
         <div class="detail-item"><span>HTTPS status</span><strong>${host.https.ok ? `HTTP ${host.https.status || 200}` : "Unavailable"}</strong></div>
         <div class="detail-item"><span>Response time</span><strong>${typeof host.https.responseTime === "number" ? `${host.https.responseTime} ms` : "Not measured"}</strong></div>
@@ -437,7 +441,7 @@ function getVisibleHosts(hosts) {
     if (!matchesFilter) return false;
     if (!state.search) return true;
 
-    const haystack = [host.hostname, ...host.ipv4, ...host.ipv6, ...host.cname].join(" ").toLowerCase();
+    const haystack = [host.hostname, ...host.ipv4, ...host.ipv6, ...host.cname, ...host.sources].join(" ").toLowerCase();
     return haystack.includes(state.search);
   });
 
@@ -543,9 +547,10 @@ function renderHistory() {
 function exportCsv() {
   if (!state.scan) return;
 
-  const header = ["hostname", "ipv4", "ipv6", "cname", "dns_resolved", "https_ok", "http_status", "response_time_ms", "final_url"];
+  const header = ["hostname", "source", "ipv4", "ipv6", "cname", "dns_resolved", "https_ok", "http_status", "response_time_ms", "final_url"];
   const rows = state.scan.hosts.map((host) => [
     host.hostname,
+    host.sources.join(" | "),
     host.ipv4.join(" | "),
     host.ipv6.join(" | "),
     host.cname.join(" | "),
@@ -579,7 +584,7 @@ function copyReport() {
     `HTTPS active: ${summary.secure}`,
     `Unresolved: ${summary.unresolved}`,
     "",
-    ...state.scan.hosts.map((host) => `${host.hostname} | ${host.ipv4.join(", ") || host.cname.join(", ") || "unresolved"} | ${host.https.ok ? `HTTP ${host.https.status || 200}` : "no HTTPS"}`),
+    ...state.scan.hosts.map((host) => `${host.hostname} | ${formatHostSources(host.sources)} | ${host.ipv4.join(", ") || host.cname.join(", ") || "unresolved"} | ${host.https.ok ? `HTTP ${host.https.status || 200}` : "no HTTPS"}`),
   ].join("\n");
 
   copyText(report, "Report copied.");
@@ -820,6 +825,17 @@ function clearDomainError() {
   dom.domainError.textContent = "";
   dom.domainField.classList.remove("has-error");
   dom.domainInput.removeAttribute("aria-invalid");
+}
+
+function formatHostSources(sources) {
+  const values = toStringArray(sources);
+  return values.length ? values.join(" + ") : "Discovered";
+}
+
+function renderSourcePills(sources) {
+  const values = toStringArray(sources);
+  const rendered = values.length ? values : ["Discovered"];
+  return `<div class="source-pills">${rendered.map((value) => `<span class="source-pill">${escapeHtml(value)}</span>`).join("")}</div>`;
 }
 
 function loadHistory() {

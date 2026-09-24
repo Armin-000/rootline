@@ -547,6 +547,7 @@ svg {
   font-weight: 700;
 }
 
+
 .scan-submit {
   width: 100%;
   min-height: 52px;
@@ -1006,6 +1007,26 @@ svg {
   margin-top: 2px;
   color: var(--ink-faint);
   font-size: 10px;
+}
+
+.source-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.source-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 7px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-muted);
+  color: var(--ink-soft);
+  font-size: 9px;
+  font-weight: 760;
+  white-space: nowrap;
 }
 
 .status-pill {
